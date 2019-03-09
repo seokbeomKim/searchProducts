@@ -1,0 +1,11 @@
+
+# ignore all csv files
+*.csv
+*.pyc
+
+# ignore files related to tensorflow (example files)
+*.pkl
+*.h5
+
+src/*.csv
+src/categoryAnalyzer/example*
