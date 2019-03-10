@@ -15,6 +15,26 @@ from models import *
 from helpers import *
 
 class Tester(object):
+  """
+  TC1: Crawling
+  TC2: Category analyzing
+  TC3: Sending a query to Elasticsearch 
+  """
+  def runTestcases(self):
+    print ("> 1. Crawling test: Hsmoabot")    
+    # self.testcase1()
+    
+    print ("> 2. Categorizing test: using tensorflow, get a category & index to elatricsearch...")
+    # self.testcase2()
+    
+    print ("> 3. Testing search...")
+    # self.testcase3()
+    
+    print ("> 4. Import json file to elasticsearch")
+    # self.testcase4()
+    
+    print ("> 5. Getting items with score adjustment")
+    self.testcase5()
   
   def testcase1(self):
     """한 달 가량의 데이터를 크롤링하여 결과 파일이 정상적으로 생성되는지 확인한다.    

@@ -62,6 +62,17 @@ class Products(Document):
       s = Search(using=client, index="products")
       s = s.query(queue)
       res = s.execute()
-      return res
+      
+      rvalue = []
+      for r in res: 
+        rvalue.append({
+          'productName': r['productName'],
+          'price': r['price'],
+          'seller': r['seller'],
+          'url': r['url'],
+          'category': r['category']
+        })
+        
+      return rvalue
   
 Products.init()
