@@ -54,5 +54,14 @@ class Products(Document):
     res = s.execute()
             
     return res
+    
+  @staticmethod
+  def searchWithQueue(queue = None):
+    if queue != None: 
+      client = Elasticsearch()
+      s = Search(using=client, index="products")
+      s = s.query(queue)
+      res = s.execute()
+      return res
   
 Products.init()

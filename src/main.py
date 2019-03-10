@@ -25,6 +25,12 @@ if __name__ == '__main__':
     # tcRunner.testcase2()
     
     print ("> 3. Testing search...")
-    tcRunner.testcase3()
+    # tcRunner.testcase3()
+    
+    print ("> 4. Import json file to elasticsearch")
+    # tcRunner.testcase4()
     # tcRunner.testCategorize()
     # tcRunner.testSearching()
+    
+    print ("> 5. Getting items with score adjustment")
+    tcRunner.testcase5()
