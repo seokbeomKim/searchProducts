@@ -7,5 +7,5 @@
 *.pkl
 *.h5
 
-src/*.csv
+src/generated/*.csv
 src/categoryAnalyzer/example*

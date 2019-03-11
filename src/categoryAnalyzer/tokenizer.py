@@ -52,7 +52,8 @@ class SimpleTokenizer(object):
         self.min_word_len = 2
 
         # 단어별 index와, 단어 사전에 존재하지 않은 단어를 발견했을 때를 처리하기 위하여, 미리 저장된 객체 로드
-        tokenizer_file = os.path.join(os.path.dirname(__file__), "example_tokenizer.pkl")
+        tokenizer_file = os.path.join(
+            os.path.dirname(__file__), "example_tokenizer.pkl")
         self.tokenizer = pickle.load(open(tokenizer_file, 'rb'))
 
         # 상품별 최대 단어 갯수 - 변경시 모델에서 예측이 불가능
@@ -102,4 +103,3 @@ class SimpleTokenizer(object):
 
         # 길이 조절
         return [pad_sequences(seq, maxlen=self.max_seq_len)]
-
