@@ -27,7 +27,7 @@ class Tester(object):
     def runTestcases(self, tcNumbers):
         """사용자가 인자로 전달한 테스트케이스 번호를 실행한다.
         """
-        tcNumbers = tcNumbers[1:]
+        tcNumbers = tcNumbers[2:]
 
         for tc in tcNumbers:
             func = getattr(self, "testcase" + tc)
@@ -134,4 +134,4 @@ class Tester(object):
         }
 
         q = query.Q(d)
-        Products.searchWithQueue(q)
+        Products.searchQuery(q)

@@ -10,10 +10,11 @@
       "program": "${workspaceRoot}/main.py",
       "console": "integratedTerminal",
       "env": {
-        "PYTHONPATH": "${workspaceRoot}"
+        "PYTHONPATH": "${workspaceRoot}",
+        "SSE_HOST": "localhost"
       },
       // "args": ["1", "2", "3", "4", "5"]
-      "args": ["5"]
+      "args": ["test", "2"]
     },
     {
       "name": "Flask 디버그",
@@ -21,7 +22,8 @@
       "request": "launch",
       "module": "flask",
       "env": {
-        "FLASK_APP": "${workspaceRoot}/main.py"
+        "FLASK_APP": "${workspaceRoot}/main.py",
+        "SSE_HOST": "localhost"
       },
       "args": ["run", "--no-debugger", "--no-reload"],
       "jinja": true

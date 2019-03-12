@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  sse_es:
+    image: chaoxifer/simple_search_engine_es
+    container_name: sse_es
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  sse:
+    links:
+      - sse_es
+    image: chaoxifer/simple_search_engine
+    container_name: sse
+    ports:
+      - "5000:5000"
+    environment:
+      - SSE_HOST=sse_es

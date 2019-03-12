@@ -7,11 +7,9 @@ from tests import Tester
 from helpers import JsonRBuilder
 from handlers import SearchHandler, DummyHandler
 
-isTesting = True
-
 if __name__ == '__main__':
 
-    if (isTesting):
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
         """
         테스팅 플래그가 활성화되어 있는 경우, 정상적인 API 서버 실행 대신에, 
         지정한 테스트 케이스를 실행한다.

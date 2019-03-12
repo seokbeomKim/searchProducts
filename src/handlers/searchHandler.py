@@ -4,23 +4,37 @@ from helpers import *
 from models import *
 from productScrapper import *
 from categoryAnalyzer import *
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import query, function
+from .handlerInterface import IHandler
 import sys
 import os
 import csv
 import pandas
 import datetime
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import query, function
 import abc
-from .handlerInterface import IHandler
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../categoryAnalyzer"))
 sys.path.append(os.path.join(os.path.dirname(__file__), "../productScrapper"))
 
 
 class SearchHandler(IHandler):
-    """/search
-    사용자가 전달한 검색 방법으로 검색한 뒤 앞선 레코드 10개를 반환한다.
+    """GET /search?keyword={키워드}
+    사용자가 전달한 키워드 중심으로 검색한 결과를 반환한다. 
+    이 때, 전달하는 데이터로 'keyword'는 필수로 전달해야 한다.
+
+    [SEARCH 검색 GET 파라미터]
+    - keyword: 검색 메인 키워드
+        /search?keyword=의류
+    - priceRange: 검색 가격 대 [Gte, Lt)
+        /search?keyword=의류&priceRange=1000,5000
+    - category: 상품 카테고리
+        /search?keyword=바지&category=의류
+    - resultFrom: 검색 결과 인덱스 설정 
+      (검색한 결과값들로 페이지 구성을 할 수 있도록 시작 인덱스를 설정)
+        /search?keyword=&resultFrom=100 
+    - resultSize: 검색 결과 크기
+        /search?keyword=&resultSize=100
     """
 
     def handle(self, args):
@@ -31,10 +45,12 @@ class SearchHandler(IHandler):
         keyword = args.get('keyword')
         priceRange = args.get('priceRange')
         category = args.get('category')
+        resultFrom = args.get('from')
+        resultSize = args.get('size')
 
         # 검색을 위한 검색 키워드는 반드시 있어야 한다.
         if keyword == None:
-            return ""
+            keyword = ''
 
         # 후보자로 등록할 통계 오차 한계
         threshold = 0.2
@@ -74,6 +90,7 @@ class SearchHandler(IHandler):
             innerSource += 'if (doc["category"].value == "' + \
                 c + '") { return (_score + ' + str(score) + '); }'
 
+        # elasticsearch 쿼리 베이스
         d = {
             'query': {
                 'function_score': {
@@ -98,6 +115,14 @@ class SearchHandler(IHandler):
                 }}
 
         # 쿼리 조정
+        if args.get('resultFrom'):
+            """검색 결과 인덱스 시작점을 설정
+            """
+            d['from'] = args.get('resultFrom')
+
+        if args.get('resultSize'):
+            d['size'] = args.get('resultSize')
+
         if args.get('keyword'):
             d['query']['function_score']['query']['bool']['must'].append(
                 {'match_phrase': {
@@ -118,5 +143,4 @@ class SearchHandler(IHandler):
                     }
                 }})
 
-        # q = query.Q(d)
         return Products.searchQuery(d)

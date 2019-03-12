@@ -4,12 +4,7 @@
 from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Search
 from elasticsearch_dsl.connections import connections
 from elasticsearch import Elasticsearch
-
-connections.create_connection(hosts=['localhost'])
-
-"""
-크롤링한 데이터 객체에 대한 DAO
-"""
+import os
 
 
 class Products(Document):
@@ -32,7 +27,7 @@ class Products(Document):
 
     @staticmethod
     def search(productName=None, seller=None, category=None, price_range=None):
-        client = Elasticsearch()
+        client = Elasticsearch(os.environ['SSE_HOST'])
         s = Search(using=client, index="products")
 
         if productName != None:
@@ -61,12 +56,7 @@ class Products(Document):
     @staticmethod
     def searchQuery(data=None):
         if data != None:
-            # client = Elasticsearch()
-            # s = Search(using=client, index="products")
-            # s = s.query(query)
-            # res = s.execute()
-
-            es = Elasticsearch()
+            es = Elasticsearch(os.environ['SSE_HOST'])
             res = es.search(
                 index="products",
                 body=data
@@ -84,6 +74,3 @@ class Products(Document):
                 })
 
             return rvalue
-
-
-Products.init()

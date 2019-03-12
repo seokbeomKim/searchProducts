@@ -1,0 +1,9 @@
+scrapy
+requests
+tensorflow
+numpy
+keras
+pandas
+elasticsearch
+elasticsearch_dsl
+flask

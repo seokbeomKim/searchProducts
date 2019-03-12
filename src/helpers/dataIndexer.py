@@ -30,6 +30,10 @@ class DataIndexer(object):
         df = pandas.read_csv(filepath)
 
         for index, row in df.iterrows():
+            if row['price'] == 'price':
+                # 맥 환경에서 개발할 때는 첫번째 열 정보를 읽지 않지만, docker 컨테이너 환경에서는
+                # 첫번째 row를 읽으므로 필터링 해준다.
+                continue
             category = self.analyzer.getCategoryByName(row['productName'])
             row['category'] = category
             self.indexRowData(row)

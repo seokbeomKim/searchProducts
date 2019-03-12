@@ -5,8 +5,7 @@ from elasticsearch_dsl import Document, Date, Integer, Double, \
     Keyword, Text, Search, Nested, InnerDoc
 from elasticsearch_dsl.connections import connections
 from elasticsearch import Elasticsearch
-
-connections.create_connection(hosts=['localhost'])
+import os
 
 
 class SampleCategory(InnerDoc):
@@ -23,7 +22,7 @@ class Sample(Document):
 
     @staticmethod
     def search(keyword=None):
-        client = Elasticsearch()
+        client = Elasticsearch(os.environ['SSE_HOST'])
         s = Search(using=client, index="samples")
 
         if keyword != None:

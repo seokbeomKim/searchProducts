@@ -60,13 +60,13 @@ class HsmoabotSpider(scrapy.Spider):
         productName = response.css('.disblock') \
             .xpath('div[@class="display-table"]/div[3]') \
             .css('.font-15,.font-13') \
-            .select('text()') \
+            .xpath('text()') \
             .re(r"\s*(.*.)\s*")
         seller = response.xpath('//div[@class="display-table"]/div[3]/img') \
             .xpath('@src') \
             .re(r"^.*/logo/logo_(.*.)\.png")
         price = response.css('.disblock') \
-            .xpath('div[2]/div[3]/s').select('text()') \
+            .xpath('div[2]/div[3]/s').xpath('text()') \
             .re(r"(^.*)+원")
         price = [s.replace(',', '') for s in price]
         # 메인으로 돌아가는 버튼 제외하기 위해 url 부분에도 정규식 추가
