@@ -47,22 +47,22 @@ services:
 ** RESTful API
 *** GET /search
 **** keyword
-     검색 키워드
+     검색 키워드를 설정합니다. (search API 이용하기 위해서는 필수)
 #+BEGIN_SRC text
 /search?keyword=가구
 #+END_SRC
 **** category
-     카테고리
+     검색하고자 하는 아이템의 카테고리 정보를 필터링합니다.
 #+BEGIN_SRC text
 /search?keyword=바지&&category=의류
 #+END_SRC
 **** priceRange
-     가격 범위
+     검색 상품의 가격대를 설정합니다.
 #+BEGIN_SRC text
 /search?keyword=바지&&category=의류&&priceRange=0,100000
 #+END_SRC
 **** resultSize, resultFrom
-     검색 결과 조회 인덱스 처리
+     검색 결과의 크기와 결과값을 몇 번째부터 받아올 것인지에 대한 인덱스 정보를 설정합니다.
 #+BEGIN_SRC text
 /search?keyword=&&resultSize=12&&resultFrom=10
 #+END_SRC
