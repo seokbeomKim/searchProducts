@@ -1,0 +1,15 @@
+.reveal p {
+    text-align: left;
+}
+.reveal pre {
+    padding: 15px;
+}
+.reveal li {
+    margin-bottom: 18px;
+}
+.reveal ul {
+    margin-top: 15px;
+}
+.reveal section {
+    text-align: left;
+}

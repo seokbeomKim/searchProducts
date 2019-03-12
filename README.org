@@ -1,28 +1,22 @@
 * Simple Search Engine
-  버즈니 백엔드 과제 프로젝트
 
 ** 과제 1. 상품 데이터 수집
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC bash
 python main.py 1
 #+END_SRC
 
-** 과제 2. 상품 데이터 카테고리 분류
-#+BEGIN_SRC shell
+** 과제 2, 과제 3. 상품 데이터 카테고리 분류 및 상품 데이터 색인
+#+BEGIN_SRC bash
 python main.py 2
 #+END_SRC
 
-** 과제 3. 상품 데이터 색인
-#+BEGIN_SRC shell
-python main.py 3
-#+END_SRC
-
 ** 과제 4. 랭킹 공식 적용
-#+BEGIN_SRC shell
+#+BEGIN_SRC bash
 python main.py 4
 #+END_SRC
 
 ** 과제 5. RESTful API 활용
-#+BEGIN_SRC shell
+#+BEGIN_SRC bash
 python main.py 5
 #+END_SRC

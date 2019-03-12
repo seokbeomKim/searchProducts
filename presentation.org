@@ -1,0 +1,173 @@
+#+REVEAL_ROOT: /Users/sukbeom/Utilities/reveal.js
+#+REVEAL_TRANS: fade
+#+REVEAL_THEME: white
+
+#+OPTIONS: toc:nil reveal_slide_number:t num:nil
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+OPTIONS: reveal_progress:t reveal_control:t
+#+OPTIONS: reveal_history:t
+#+OPTIONS: reveal_title_slide:"<h1>%t</h1><h2>%a</h2><h3>%e</h3>"
+#+OPTIONS: reveal_single_file:t
+
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 0.8
+#+REVEAL_EXTRA_CSS: ./presentation.css
+#+REVEAL_HLEVEL: 2
+
+
+#+Title: 버즈니 백엔드과제 설명자료
+#+Author: 김석범
+#+Email: sukbeom.kim@gmail.com
+
+* 개발 환경
+   1. Python 3.7
+
+   2. 도커 base 이미지
+     - Elasticsearch:6.6.1
+     - Python:3
+
+   3. 에디터
+     - VSCode
+     - Emacs
+
+   4. RESTful API 파이썬 프레임워크
+     - Flask
+
+* 도커 이미지 & 소스코드
+
+ 1. Docker-hub
+    - [[https://cloud.docker.com/repository/docker/chaoxifer/simple_search_engine][파이썬 RESTful 서버 애플리케이션]]
+    - [[https://cloud.docker.com/repository/docker/chaoxifer/simple_search_engine_es][인덱싱 처리된 Elasticsearch 이미지]]
+
+ 2. Github
+    - [[https://github.com/seokbeomKim/searchProducts][파이썬 소스코드 및 Dockerfile]]
+
+
+* docker-compose.yml
+   제출한 과제는 elasticsearch 서버와 파이썬 애플리케이션 각각
+   별도의 컨테이너로 구성하였습니다.
+#+BEGIN_SRC bash
+version: '3'
+
+services:
+  sse_es:
+    image: chaoxifer/simple_search_engine_es
+    container_name: sse_es
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  sse:
+    links:
+      - sse_es
+    image: chaoxifer/simple_search_engine
+    container_name: sse
+    ports:
+      - "5000:5000"
+    environment:
+      - SSE_HOST=sse_es
+#+END_SRC
+
+
+* 크롤링
+주어진 링크로부터 임의 날짜 기준 30일치를 크롤링하여 csv 파일들을
+생성합니다.  도커 이미지 'SSE-ES' 내에는 2019/03/01을 기준으로
+크롤링한 데이터들이 색인되어 있습니다.
+
+   #+BEGIN_SRC bash
+> python main.py test 1 && ls -l /sse/generated
+
+root@138de2ef5345:/# ls /sse/generated/ -al
+total 2236
+drwxr-xr-x 2 root root  4096 Mar 11 12:41 .
+drwxr-xr-x 1 root root  4096 Mar 12 04:15 ..
+-rw-r--r-- 1 root root 76840 Mar 11 15:41 20190131.csv
+-rw-r--r-- 1 root root 77506 Mar 11 15:41 20190201.csv
+
+...
+   #+END_SRC
+
+* 카테고리 분류 및 색인
+   주어진 tensorflow 코드와 과제 1번에서 크롤링하여 얻은 csv 파일들을
+   바탕으로 카테고리 값을 얻은 뒤 elasticsearch에 색인합니다.
+   #+BEGIN_SRC bash
+python main.py test 2 && curl -XGET localhost:9200/products/_search
+
+searchProducts git:(master) ✗ curl -XGET localhost:9200/products/_search
+{"took":27,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,
+"failed":0},"hits":{"total":28205,"max_score":1.0,"hits":[{"_index":"...
+
+   #+END_SRC
+
+* 랭킹 스크립트 적용 (1/2)
+   브라우저를 통해 RESTful API를 이용하여 직접 확인합니다.
+   #+BEGIN_SRC text
+   (위의 docker-compose.yml 처럼 5000번 포트가 호스트의 5000번 포트와 바인딩 되어 있을 때)
+   http://localhost:5000/search?keyword=가구
+   #+END_SRC
+
+   적용한 랭킹 스크립트 예시는 아래와 같습니다.
+#+BEGIN_SRC painless
+GET /products/_search
+{
+    "function_score": {
+      "query": {
+        ...
+      },
+      "script_score": {
+        "script": {
+          "lang": "painless",
+          "source": """
+          if (doc['category'].value == "의류") {
+            return _score * 0.5;
+          } else if (doc['category'].value == "스포츠") {
+            return doc['_score'].value * 0.8;
+          } else {
+            return 0.1;
+          }
+          """
+        }
+#+END_SRC
+
+* 랭킹 스크립트 적용 (2/2)
+ * 주어진 통계자료를 이용하여 클라이언트로부터 전달받은 키워드에
+   해당하는 카테고리 정보를 얻습니다. 이 때, 해당하는 카테고리가 2개
+   이상이면서 통계치의 차이가 일정 수치 이하인경우(threshold: 0.2),
+   2개 카테고리를 선택하여 후보 카테고리로 선정합니다.
+
+ * 주어진 카테고리와 선정한 카테고리 후보를 이용하여 상품 인덱스에서
+   검색한 뒤, 통계치가 높았던 카테고리부터 우선적으로 스코어를
+   할당합니다. 이 때, 가중치는 '통계치 / 후보순위'가 됩니다.
+
+
+* RESTful API (1/2)
+
+  * 브라우저를 통해 아래 키워드로 검색 API를 제공합니다.
+
+#+BEGIN_SRC
+GET /search
+#+END_SRC
+
+  * keyword(*필수): 검색하고자 하는 키워드
+
+#+BEGIN_SRC text
+/search?keyword=여행
+#+END_SRC
+
+  * priceRange: 가격 범위로 검색하는 키워드
+
+#+BEGIN_SRC text
+/search?keyword=여행&&priceRange=50000,800000
+#+END_SRC
+
+* RESTful API (2/2)
+  * category: 상품 카테고리
+#+BEGIN_SRC text
+/search?keyword=바지&&category=생필품/주방
+#+END_SRC
+
+  * resultFrom, resultSize: 인덱싱 설정
+    (검색 결과 중에서 받아올 결과값 크기와 결과 인덱스의 시작점 설정)
+#+BEGIN_SRC test
+/search??keyword=&&resultFrom=100&&resultSize=100
+(100번째 결과값부터 100개만큼 가져옴)
+#+END_SRC
