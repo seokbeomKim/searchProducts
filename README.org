@@ -20,3 +20,49 @@ python main.py 4
 #+BEGIN_SRC bash
 python main.py 5
 #+END_SRC
+
+** docker-compose.yml
+#+BEGIN_SRC bash
+version: '3'
+
+services:
+  sse_es:
+    image: chaoxifer/simple_search_engine_es
+    container_name: sse_es
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  sse:
+    links:
+      - sse_es
+    image: chaoxifer/simple_search_engine
+    container_name: sse
+    ports:
+      - "5000:5000"
+    environment:
+      - SSE_HOST=sse_es
+#+END_SRC
+
+
+** RESTful API
+*** GET /search
+**** keyword
+     검색 키워드
+#+BEGIN_SRC text
+/search?keyword=가구
+#+END_SRC
+**** category
+     카테고리
+#+BEGIN_SRC text
+/search?keyword=바지&&category=의류
+#+END_SRC
+**** priceRange
+     가격 범위
+#+BEGIN_SRC text
+/search?keyword=바지&&category=의류&&priceRange=0,100000
+#+END_SRC
+**** resultSize, resultFrom
+     검색 결과 조회 인덱스 처리
+#+BEGIN_SRC text
+/search?keyword=&&resultSize=12&&resultFrom=10
+#+END_SRC
